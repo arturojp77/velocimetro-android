@@ -11,10 +11,11 @@ import android.view.View;
 
 public class SpeedometerView extends View {
 
-    private Paint arcPaint, tickPaint, needlePaint, textPaint, centerPaint;
+    private Paint arcPaint, tickPaint, needlePaint, textPaint, centerPaint, speedTextPaint, unitTextPaint;
     private float currentSpeed = 0f;
     private float maxSpeed = 200f;
     private RectF arcRect;
+    private boolean showNeedle = true;
 
     public SpeedometerView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -40,6 +41,15 @@ public class SpeedometerView extends View {
         textPaint.setColor(Color.WHITE);
         textPaint.setTextAlign(Paint.Align.CENTER);
 
+        speedTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        speedTextPaint.setColor(Color.WHITE);
+        speedTextPaint.setTextAlign(Paint.Align.CENTER);
+        speedTextPaint.setFakeBoldText(true);
+
+        unitTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        unitTextPaint.setColor(Color.parseColor("#AAAAAA"));
+        unitTextPaint.setTextAlign(Paint.Align.CENTER);
+
         centerPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         centerPaint.setStyle(Paint.Style.FILL);
         centerPaint.setColor(Color.WHITE);
@@ -47,6 +57,11 @@ public class SpeedometerView extends View {
 
     public void setSpeed(float speed) {
         this.currentSpeed = Math.min(speed, maxSpeed);
+        invalidate();
+    }
+
+    public void setShowNeedle(boolean showNeedle) {
+        this.showNeedle = showNeedle;
         invalidate();
     }
 
@@ -60,13 +75,21 @@ public class SpeedometerView extends View {
         float cy = height / 2f;
         float radius = Math.min(cx, cy) * 0.85f;
 
+        if (showNeedle) {
+            drawNeedleMode(canvas, cx, cy, radius);
+        } else {
+            drawNumberMode(canvas, cx, cy, radius);
+        }
+    }
+
+    private void drawNeedleMode(Canvas canvas, float cx, float cy, float radius) {
         // Arco de fondo
         arcRect = new RectF(cx - radius, cy - radius, cx + radius, cy + radius);
         arcPaint.setColor(Color.parseColor("#333333"));
         arcPaint.setStrokeWidth(25f);
         canvas.drawArc(arcRect, 150, 240, false, arcPaint);
 
-        // Arco de velocidad actual (verde → amarillo → rojo)
+        // Arco de velocidad actual
         float speedRatio = currentSpeed / maxSpeed;
         int arcColor;
         if (speedRatio < 0.5f) {
@@ -77,26 +100,22 @@ public class SpeedometerView extends View {
             arcColor = Color.parseColor("#FF2200");
         }
         arcPaint.setColor(arcColor);
-        arcPaint.setStrokeWidth(25f);
         canvas.drawArc(arcRect, 150, 240 * speedRatio, false, arcPaint);
 
-        // Marcas y números
+        // Marcas y números del arco
         for (int i = 0; i <= 200; i += 20) {
             float angle = 150 + (i / maxSpeed) * 240;
             float rad = (float) Math.toRadians(angle);
 
             float innerR = radius * 0.78f;
             float outerR = radius * 0.92f;
-
             float x1 = cx + innerR * (float) Math.cos(rad);
             float y1 = cy + innerR * (float) Math.sin(rad);
             float x2 = cx + outerR * (float) Math.cos(rad);
             float y2 = cy + outerR * (float) Math.sin(rad);
-
             tickPaint.setStrokeWidth(4f);
             canvas.drawLine(x1, y1, x2, y2, tickPaint);
 
-            // Números
             float textR = radius * 0.65f;
             float tx = cx + textR * (float) Math.cos(rad);
             float ty = cy + textR * (float) Math.sin(rad) + 10f;
@@ -108,9 +127,9 @@ public class SpeedometerView extends View {
         float needleAngle = 150 + (currentSpeed / maxSpeed) * 240;
         float needleRad = (float) Math.toRadians(needleAngle);
         float needleLength = radius * 0.7f;
+        float backRad = (float) Math.toRadians(needleAngle + 180);
 
         Path needle = new Path();
-        float backRad = (float) Math.toRadians(needleAngle + 180);
         needle.moveTo(
             cx + needleLength * (float) Math.cos(needleRad),
             cy + needleLength * (float) Math.sin(needleRad)
@@ -133,14 +152,35 @@ public class SpeedometerView extends View {
         // Centro
         canvas.drawCircle(cx, cy, radius * 0.08f, centerPaint);
 
-        // Velocidad en el centro
-        textPaint.setTextSize(radius * 0.28f);
-        textPaint.setColor(Color.WHITE);
-        canvas.drawText((int) currentSpeed + "", cx, cy + radius * 0.35f, textPaint);
+        // Número grande debajo de la aguja
+        speedTextPaint.setTextSize(radius * 0.45f);
+        speedTextPaint.setColor(Color.WHITE);
+        canvas.drawText((int) currentSpeed + "", cx, cy + radius * 0.42f, speedTextPaint);
 
         // km/h
-        textPaint.setTextSize(radius * 0.12f);
-        textPaint.setColor(Color.parseColor("#AAAAAA"));
-        canvas.drawText("km/h", cx, cy + radius * 0.52f, textPaint);
+        unitTextPaint.setTextSize(radius * 0.16f);
+        canvas.drawText("km/h", cx, cy + radius * 0.60f, unitTextPaint);
+    }
+
+    private void drawNumberMode(Canvas canvas, float cx, float cy, float radius) {
+        // Color según velocidad
+        float speedRatio = currentSpeed / maxSpeed;
+        int speedColor;
+        if (speedRatio < 0.5f) {
+            speedColor = Color.parseColor("#00CC44");
+        } else if (speedRatio < 0.75f) {
+            speedColor = Color.parseColor("#FFAA00");
+        } else {
+            speedColor = Color.parseColor("#FF2200");
+        }
+
+        // Número gigante centrado
+        speedTextPaint.setTextSize(radius * 1.1f);
+        speedTextPaint.setColor(speedColor);
+        canvas.drawText((int) currentSpeed + "", cx, cy + radius * 0.35f, speedTextPaint);
+
+        // km/h
+        unitTextPaint.setTextSize(radius * 0.22f);
+        canvas.drawText("km/h", cx, cy + radius * 0.62f, unitTextPaint);
     }
 }
