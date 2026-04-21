@@ -6,6 +6,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -13,6 +14,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
     private SpeedometerView speedometerView;
     private LocationManager locationManager;
+    private Button btnToggle;
+    private boolean showNeedle = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,6 +23,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         setContentView(R.layout.activity_main);
 
         speedometerView = findViewById(R.id.speedometerView);
+        btnToggle = findViewById(R.id.btnToggle);
+
+        btnToggle.setOnClickListener(v -> {
+            showNeedle = !showNeedle;
+            speedometerView.setShowNeedle(showNeedle);
+            btnToggle.setText(showNeedle ? "Solo Número" : "Ver Tacómetro");
+        });
 
         if (ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION)
