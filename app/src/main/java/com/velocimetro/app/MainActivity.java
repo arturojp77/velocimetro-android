@@ -6,13 +6,12 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 public class MainActivity extends AppCompatActivity implements LocationListener {
 
-    private TextView tvSpeed;
+    private SpeedometerView speedometerView;
     private LocationManager locationManager;
 
     @Override
@@ -20,7 +19,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        tvSpeed = findViewById(R.id.tvSpeed);
+        speedometerView = findViewById(R.id.speedometerView);
 
         if (ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION)
@@ -41,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                 == PackageManager.PERMISSION_GRANTED) {
 
             locationManager.requestLocationUpdates(
-                LocationManager.GPS_PROVIDER, 1000, 5, this);
+                LocationManager.GPS_PROVIDER, 1000, 2, this);
         }
     }
 
@@ -49,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     public void onLocationChanged(Location location) {
         if (location.hasSpeed()) {
             float speedKmh = location.getSpeed() * 3.6f;
-            tvSpeed.setText(String.valueOf((int) speedKmh));
+            speedometerView.setSpeed(speedKmh);
         }
     }
 
