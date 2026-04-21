@@ -9,6 +9,18 @@
     <com.velocimetro.app.SpeedometerView
         android:id="@+id/speedometerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+
+    <Button
+        android:id="@+id/btnToggle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cambiar Vista"
+        android:layout_marginBottom="24dp"
+        android:backgroundTint="#333333"
+        android:textColor="#FFFFFF"
+        android:paddingLeft="32dp"
+        android:paddingRight="32dp"/>
 
 </LinearLayout>
