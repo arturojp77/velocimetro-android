@@ -1,6 +1,5 @@
 package com.velocimetro.app.auto;
 
-import androidx.lifecycle.LifecycleOwner;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -24,6 +23,14 @@ public class VelocimetroScreen extends Screen implements LocationListener {
 
     public VelocimetroScreen(@NonNull CarContext carContext) {
         super(carContext);
+        getLifecycle().addObserver(new androidx.lifecycle.DefaultLifecycleObserver() {
+            @Override
+            public void onDestroy(@NonNull androidx.lifecycle.LifecycleOwner owner) {
+                if (locationManager != null) {
+                    locationManager.removeUpdates(VelocimetroScreen.this);
+                }
+            }
+        });
         startTracking();
     }
 
@@ -73,18 +80,11 @@ public class VelocimetroScreen extends Screen implements LocationListener {
     public void onLocationChanged(@NonNull Location location) {
         if (location.hasSpeed()) {
             currentSpeedKmh = location.getSpeed() * 3.6f;
-            invalidate(); // Redibuja la pantalla en Auto
+            invalidate();
         }
     }
 
     @Override public void onProviderEnabled(@NonNull String provider) {}
     @Override public void onProviderDisabled(@NonNull String provider) {}
     @Override public void onStatusChanged(String provider, int status, Bundle extras) {}
-
-    @Override
-    public void onDestroy(@NonNull LifecycleOwner owner) {
-        if (locationManager != null) {
-            locationManager.removeUpdates(this);
-        }
-    }
 }
