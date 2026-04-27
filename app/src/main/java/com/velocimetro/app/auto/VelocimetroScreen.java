@@ -1,5 +1,6 @@
 package com.velocimetro.app.auto;
 
+import androidx.lifecycle.LifecycleOwner;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -81,7 +82,7 @@ public class VelocimetroScreen extends Screen implements LocationListener {
     @Override public void onStatusChanged(String provider, int status, Bundle extras) {}
 
     @Override
-    public void onStop() {
+    public void onDestroy(@NonNull LifecycleOwner owner) {
         if (locationManager != null) {
             locationManager.removeUpdates(this);
         }
