@@ -4,6 +4,11 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 
+    <!-- Requerido por Android Auto -->
+    <uses-feature
+        android:name="android.hardware.type.automotive"
+        android:required="false"/>
+
     <application
         android:allowBackup="true"
         android:label="Velocímetro"
@@ -19,6 +24,19 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
+        <!-- Servicio Android Auto -->
+        <service
+            android:name=".auto.VelocimetroCarAppService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.car.app.CarAppService"/>
+                <category android:name="androidx.car.app.category.OTHER"/>
+            </intent-filter>
+            <meta-data
+                android:name="androidx.car.app.minCarApiLevel"
+                android:value="1"/>
+        </service>
 
     </application>
 
